@@ -1,9 +1,9 @@
 import Header from "./components/Header";
-import {BrowserRouter as Router,Route,Routes} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Tasks from "./components/Tasks";
-import { useState , useEffect } from "react";
+import { useState, useEffect } from "react";
 import AddTask from "./components/AddTask";
-import Footer  from "./components/Footer";
+import Footer from "./components/Footer";
 import About from "./components/About";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
 
   useEffect(() => {
     const getTasks = async () => {
-      const tasksFromServer = await fetchTasks();
+      const tasksFromServer = (await fetchTasks()) || [];
 
       setTasks(tasksFromServer);
     };
@@ -22,65 +22,85 @@ function App() {
 
   //Fetch Tasks
   const fetchTasks = async () => {
-    const res = await fetch("http://localhost:5000/tasks");
-    const data = await res.json();
+    try {
+      const res = await fetch("http://localhost:5000/tasks");
+      const data = await res.json();
 
-    return data;
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   //Fetch Task
   const fetchTask = async (id) => {
-    const res = await fetch(`http://localhost:5000/tasks/${id}`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`http://localhost:5000/tasks/${id}`);
+      const data = await res.json();
 
-    return data;
+      return data;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   //Add Task
   const addTask = async (task) => {
-    const res = await fetch("http://localhost:5000/tasks", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/tasks", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setTasks([...tasks, data]);
+      setTasks([...tasks, data]);
 
-    //  const id = Math.floor(Math.random()*10000) +1
-    //  const newTask = { id,...task }
-    //  setTasks( [...tasks,newTask])
+      //  const id = Math.floor(Math.random()*10000) +1
+      //  const newTask = { id,...task }
+      //  setTasks( [...tasks,newTask])
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   //Delete task
   const deleteTask = async (id) => {
-    await fetch(`http://localhost:5000/tasks/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      await fetch(`http://localhost:5000/tasks/${id}`, {
+        method: "DELETE",
+      });
 
-    setTasks(tasks.filter((task) => task.id !== id));
+      setTasks(tasks.filter((task) => task.id !== id));
+    } catch (e) {
+      console.log(e);
+    }
   };
   //Toggle Reminder
   const toggleReminder = async (id) => {
-    const taskToToggle = await fetchTask(id);
-    const updTask = { ...taskToToggle, reminder: !taskToToggle.reminder };
-    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-type": "applications/json",
-      },
-      body: JSON.stringify(updTask),
-    });
-    const data = await res.json();
+    try {
+      const taskToToggle = await fetchTask(id);
+      const updTask = { ...taskToToggle, reminder: !taskToToggle.reminder };
+      const res = await fetch(`http://localhost:5000/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-type": "applications/json",
+        },
+        body: JSON.stringify(updTask),
+      });
+      const data = await res.json();
 
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, reminder: data.reminder } : task
-      )
-    );
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, reminder: data.reminder } : task
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -115,7 +135,5 @@ function App() {
     </Router>
   );
 }
-
-
 
 export default App;
